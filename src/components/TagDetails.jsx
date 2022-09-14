@@ -185,6 +185,11 @@ function TagDetails (props) {
     return(get_random(arrSignature));
   }
 
+  const getPlatform = () => {
+    // @ts-ignore
+    return repoDetailData?.platforms? repoDetailData.platforms[0] : '--/--';
+  }
+
   // @ts-ignore
   const handleTabChange = (event, newValue) => {
     setSelectedTab(newValue);
@@ -242,18 +247,14 @@ function TagDetails (props) {
                         alt="icon"
                       />
                       <Typography variant="h3" className={classes.repoName}>
-                        {name}:{repoDetailData.
-// @ts-ignore
-                        tags}
+                        {name}:{repoDetailData?.tags}
                       </Typography>
                       {verifiedCheck()}
                       {signatureCheck()}
                       <BookmarkIcon sx={{color:"#52637A"}}/>
                     </Stack>
                     <Typography pt={1} sx={{ fontSize: 16,lineHeight:"1.5rem", color:"rgba(0, 0, 0, 0.6)", paddingLeft:"4rem"}} gutterBottom align="left">
-                      Digest: {repoDetailData.
-// @ts-ignore
-                      latestDigest}
+                      Digest: {repoDetailData?.latestDigest}
                     </Typography>
                   </Grid>
                   
@@ -292,14 +293,13 @@ function TagDetails (props) {
                     </TabContext>
                   </Grid>
                     <Grid item xs={4} className={classes.metadata}>
-                      {console.log(JSON.stringify(repoDetailData))}
                       <TagDetailsMetadata 
                         // @ts-ignore
-                        platforms={repoDetailData.platforms[0]}
+                        platforms={getPlatform()}
                         // @ts-ignore
-                        size={repoDetailData.size}
+                        size={repoDetailData?.size}
                         // @ts-ignore
-                        lastUpdated={repoDetailData.lastUpdated}
+                        lastUpdated={repoDetailData?.lastUpdated}
                       />
                   </Grid>
                 </Grid>
