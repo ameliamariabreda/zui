@@ -7,7 +7,6 @@ import {api, endpoints} from '../api';
 import mockData from '../utilities/mockData';
 
 // components
-import Tags from './Tags.jsx'
 import {Box, Card, CardContent, CardMedia, Chip, FormControl, Grid, IconButton, InputAdornment, OutlinedInput, Stack, Tab, Typography} from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import { host } from '../host';
@@ -25,7 +24,7 @@ import repocube2 from '../assets/repocube-2.png';
 import repocube3 from '../assets/repocube-3.png';
 import repocube4 from '../assets/repocube-4.png';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
-import RepoDetailsMetadata from './RepoDetailsMetadata';
+import TagDetailsMetadata from './TagDetailsMetadata';
 import { padding } from '@mui/system';
 
 // @ts-ignore
@@ -124,11 +123,11 @@ const randomImage = () => {
   return imageArray[randomIntFromInterval(0,3)];
 };
 
-function RepoDetails (props) {
+function TagDetails (props) {
   const [repoDetailData, setRepoDetailData] = useState({});
   // @ts-ignore
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedTab, setSelectedTab] = useState("Overview");
+  const [selectedTab, setSelectedTab] = useState("Layers");
 
   // get url param from <Route here (i.e. image name)
   const {name} = useParams();
@@ -142,11 +141,11 @@ function RepoDetails (props) {
               let repoInfo = response.data.data.ExpandedRepoInfo;
               let imageData = {
                 name: name,
-                images: repoInfo.Images,
+                tags: repoInfo.Images[0].Tag,
                 lastUpdated: repoInfo.Summary?.LastUpdated,
                 size: repoInfo.Summary?.Size,
-                //latestDigest: repoInfo.Images[0].Digest,
-                //layers: repoInfo.Images[0].Layers,
+                latestDigest: repoInfo.Images[0].Digest,
+                layers: repoInfo.Images[0].Layers,
                 platforms: repoInfo.Summary?.Platforms,
                 vendors: repoInfo.Summary?.Vendors,
                 newestTag: repoInfo.Summary?.NewestImage
@@ -186,20 +185,6 @@ function RepoDetails (props) {
     return(get_random(arrSignature));
   }
 
-  const platformChips = () => {
-    // if platforms not received, mock data
-    // @ts-ignore
-    const platforms = repoDetailData.platforms || ["Windows","PowerPC64LE","IBM Z","Linux"];
-    return platforms.map((platform, index) => (
-    
-      <Chip key={index} label={platform.Os} sx={{
-        backgroundColor: "#E0E5EB",
-        color: "#52637A",
-        fontSize: "0.8125rem",
-      }}/>
-    ));
-  }
-
   // @ts-ignore
   const handleTabChange = (event, newValue) => {
     setSelectedTab(newValue);
@@ -216,29 +201,29 @@ function RepoDetails (props) {
     );
   };
 
-  // const renderDependencies = () => {
-  //   return (<Card className={classes.card}>
-  //       <CardContent>
-  //         <Typography variant="h4" align="left">Dependecies ({dependencies || '---'})</Typography>
-  //       </CardContent>
-  //     </Card>);
-  // };
+  const renderDependencies = () => {
+    return (<Card className={classes.card}>
+        <CardContent>
+          <Typography variant="h4" align="left">Dependecies ({dependencies || '---'})</Typography>
+        </CardContent>
+      </Card>);
+  };
 
-  // const renderDependents = () => {
-  //   return (<Card className={classes.card}>
-  //       <CardContent>
-  //         <Typography variant="h4" align="left">Dependents ({dependents || '---'})</Typography>
-  //       </CardContent>
-  //     </Card>);
-  // };
+  const renderDependents = () => {
+    return (<Card className={classes.card}>
+        <CardContent>
+          <Typography variant="h4" align="left">Dependents ({dependents || '---'})</Typography>
+        </CardContent>
+      </Card>);
+  };
 
-  // const renderVulnerabilities = () => {
-  //   return (<Card className={classes.card}>
-  //       <CardContent>
-  //         <Typography variant="h4" align="left">Vulnerabilities</Typography>
-  //       </CardContent>
-  //     </Card>);
-  // };
+  const renderVulnerabilities = () => {
+    return (<Card className={classes.card}>
+        <CardContent>
+          <Typography variant="h4" align="left">Vulnerabilities</Typography>
+        </CardContent>
+      </Card>);
+  };
 
 
   return (
@@ -257,40 +242,21 @@ function RepoDetails (props) {
                         alt="icon"
                       />
                       <Typography variant="h3" className={classes.repoName}>
-                        {name}
+                        {name}:{repoDetailData.
+// @ts-ignore
+                        tags}
                       </Typography>
                       {verifiedCheck()}
                       {signatureCheck()}
                       <BookmarkIcon sx={{color:"#52637A"}}/>
                     </Stack>
                     <Typography pt={1} sx={{ fontSize: 16,lineHeight:"1.5rem", color:"rgba(0, 0, 0, 0.6)", paddingLeft:"4rem"}} gutterBottom align="left">
-                      {description || 'The complete solution for node.js command-line programs'}
+                      Digest: {repoDetailData.
+// @ts-ignore
+                      latestDigest}
                     </Typography>
-                    <Stack alignItems="center" sx={{ paddingLeft:"4rem"}} direction="row" spacing={2} pt={1}>
-                      {platformChips()}
-                    </Stack>
                   </Grid>
-                  <Grid item xs={4} >
-                      <Typography variant="body1" sx={{color:"#52637A", fontSize: "1rem"}}>Copy and pull to pull this image</Typography>
-                      <FormControl  sx={{ m: 1, paddingLeft:"1.5rem"}} variant="outlined">
-                        <OutlinedInput
-                          value={`Pull ${name}`}
-                          className={classes.inputForm}
-                          sx={{ m: 1, width: '20.625rem',  borderRadius: "0.5rem", color: "#14191F"}}
-                          endAdornment={
-                            <InputAdornment position="end" >
-                              <IconButton aria-label='copy' edge="end" onClick={() => navigator.clipboard.writeText(`Pull ${name}`)} data-testid='pullcopy-btn'>
-                                <ContentCopyIcon/>
-                              </IconButton>
-                            </InputAdornment>
-                          }
-                          aria-describedby="outlined-weight-helper-text"
-                          inputProps={{
-                            'aria-label': 'weight',
-                          }}
-                        />
-                      </FormControl>
-                  </Grid>
+                  
                 </Grid>
                 <Grid container>
                   <Grid item xs={8} className={classes.tabs}>
@@ -301,45 +267,39 @@ function RepoDetails (props) {
                           TabIndicatorProps={{ className: classes.selectedTab }} 
                           sx={{ "& button.Mui-selected": {color:"#14191F", fontWeight:"600"}}}
                         >
-                            <Tab value="Overview" label="Overview" className={classes.tabContent}/>
-                            <Tab value="Tags" label="Tags" className={classes.tabContent}/>
-                            {/* <Tab value="Dependencies" label={`${dependencies || 0} Dependencies`} className={classes.tabContent}/>
-                            <Tab value="Dependents" label={`${dependents || 0} Dependents`} className={classes.tabContent}/>
+                            <Tab value="Layers" label="Layers" className={classes.tabContent}/>
+                            <Tab value="DependsOn" label="Depends on" className={classes.tabContent}/>
+                            <Tab value="IsDependentOn" label="Is Dependent On" className={classes.tabContent}/>
                             <Tab value="Vulnerabilities" label="Vulnerabilities" className={classes.tabContent}/>
-                            <Tab value="6" label="Tab 6" className={classes.tabContent}/>
-                            <Tab value="7" label="Tab 7" className={classes.tabContent}/>
-                            <Tab value="8" label="Tab 8" className={classes.tabContent}/> */}
                         </TabList>
                         <Grid container>
                             <Grid item xs={12}>
-                                <TabPanel value="Overview" className={classes.tabPanel}>
-                                  {renderOverview()}
+                                <TabPanel value="Layers" className={classes.tabPanel}>
+                                  <Typography> Layers </Typography>
                                 </TabPanel>
-                                <TabPanel value="Tags" className={classes.tabPanel}>
-                                  <Tags data={repoDetailData} />
+                                <TabPanel value="DependsOn" className={classes.tabPanel}>
+                                  <Typography> Depends On </Typography>
                                 </TabPanel>
-                                {/* <TabPanel value="Dependencies" className={classes.tabPanel}>
-                                  {renderDependencies()}
-                                </TabPanel>
-                                <TabPanel value="Dependents" className={classes.tabPanel}>
-                                  {renderDependents()}
+                                <TabPanel value="IsDependentOn" className={classes.tabPanel}>
+                                  <Typography> Is Dependent On </Typography>
                                 </TabPanel>
                                 <TabPanel value="Vulnerabilities" className={classes.tabPanel}>
-                                  {renderVulnerabilities()}
-                                </TabPanel> */}
+                                  <Typography> Vulnerabilities </Typography>
+                                </TabPanel> 
                             </Grid>
                         </Grid>
                       </Box>
                     </TabContext>
                   </Grid>
                     <Grid item xs={4} className={classes.metadata}>
-                      <RepoDetailsMetadata 
+                      {console.log(JSON.stringify(repoDetailData))}
+                      <TagDetailsMetadata 
                         // @ts-ignore
-                        lastUpdated={repoDetailData.lastUpdated}
+                        platforms={repoDetailData.platforms[0]}
                         // @ts-ignore
                         size={repoDetailData.size}
                         // @ts-ignore
-                        latestTag={repoDetailData.newestTag}
+                        lastUpdated={repoDetailData.lastUpdated}
                       />
                   </Grid>
                 </Grid>
@@ -349,4 +309,4 @@ function RepoDetails (props) {
   );
 }
 
-export default RepoDetails;
+export default TagDetails;
